@@ -17,6 +17,8 @@ node scripts/bootstrap.mjs             # enable Corepack, install deps, create .
 
 The script can be re-run safely and never overwrites an existing `.env`. After it finishes, fill in the placeholder values in `.env` and continue with [Section 2](#2-stellar-testnet-wallet-setup) to set up your wallet. Sections 1 and 4 describe the manual equivalent of the bootstrap.
 
+For a map of which directory owns what, see the [Monorepo Map](./monorepo-map.md).
+
 ---
 
 ## 1. Prerequisites & Environment Setup

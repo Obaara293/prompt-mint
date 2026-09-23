@@ -329,6 +329,9 @@ yarn test:frontend --run api/prompts/unlock.test.ts src/lib/auth/challenge.test.
 yarn build
 ```
 
+For a map of the repository and its ownership boundaries, see the
+[Monorepo Map](docs/monorepo-map.md).
+
 For a timed zero-to-working setup with a first Soroban contract interaction,
 see the [Developer Quickstart](docs/developer-quickstart.md).
 

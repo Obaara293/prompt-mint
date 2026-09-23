@@ -15,6 +15,7 @@ This project is an in-development Soroban application for encrypted prompt licen
 
 - Open an issue for significant feature work or architectural changes.
 - Keep pull requests focused. Avoid mixing product docs, contract changes, and unrelated UI cleanup in one PR.
+- Check [docs/monorepo-map.md](docs/monorepo-map.md) to see which area owns the code you are changing and which cross-directory imports are allowed.
 - Preserve existing user changes in the repo when working locally.
 
 ## Development Workflow
