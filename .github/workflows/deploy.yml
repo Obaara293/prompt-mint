@@ -348,6 +348,28 @@ jobs:
           name: sbom-${{ github.sha }}
           path: ./sbom
 
+      - name: Set up cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.3'
+
+      # Gate the release on provenance: the deploy workflow badge in README and
+      # docs/artifact-verification.md is only green when this step passes.
+      - name: Verify deployment provenance
+        run: |
+          set -euo pipefail
+          mkdir -p flat
+          find signed-release -type f -exec cp {} flat/ \;
+          cosign verify-blob \
+            --bundle flat/release-checksums.txt.sig \
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/deploy.yml@${{ github.ref }}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            flat/release-checksums.txt
+          (cd flat && grep ' deploy-manifest.json$' release-checksums.txt | sha256sum -c -)
+          node scripts/deploy-manifest.mjs verify --manifest flat/deploy-manifest.json --root flat
+          node scripts/deploy-manifest.mjs badge --manifest flat/deploy-manifest.json --root flat \
+            --out signed-release/provenance-badge.json
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

@@ -1,5 +1,8 @@
 # PromptHash Stellar
 
+[![Deploy provenance](https://github.com/PromptMintLabs/prompt-mint/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/PromptMintLabs/prompt-mint/actions/workflows/deploy.yml)
+[![SLSA provenance: attested](https://img.shields.io/badge/provenance-SLSA%20attested%20%C2%B7%20cosign%20signed-2ea44f?logo=sigstore)](docs/artifact-verification.md#verified-deployment-provenance-badge)
+
 PromptHash Stellar is a Soroban-based marketplace for selling reusable AI prompt licenses with XLM payments and wallet-verified unlocks.
 
 ## Overview
