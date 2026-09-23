@@ -269,6 +269,14 @@ The current contract data model includes:
 
 ### Install dependencies
 
+New contributors can do the whole setup with one command. It installs dependencies, creates `.env`, and validates the setup:
+
+```bash
+node scripts/bootstrap.mjs   # add --dry-run to preview, --skip-rust for frontend-only work
+```
+
+Or install manually:
+
 ```bash
 yarn install
 cd server && npm install && cd ..

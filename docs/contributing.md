@@ -104,6 +104,21 @@ You can run `yarn check:setup` after installing dependencies to validate local t
 
 ## Install dependencies
 
+### One-command bootstrap
+
+From the repository root, run:
+
+```bash
+node scripts/bootstrap.mjs            # or: yarn bootstrap
+node scripts/bootstrap.mjs --dry-run  # print the plan without changing anything
+```
+
+The bootstrap enables Corepack when Yarn 4 is missing, runs `yarn install` and `npm ci` in `server/`, and copies `.env.example` to `.env` only if `.env` does not exist yet. It also adds the `wasm32-unknown-unknown` Rust target when `rustup` is present, then finishes with `yarn check:setup --warn-only`. It never installs Node, Rust, or the Stellar CLI for you. When one is missing, it prints the install command. You can re-run it at any time.
+
+Flags: `--skip-server`, `--skip-rust` (frontend-only contributors), `--skip-env`.
+
+### Manual install
+
 From the repository root:
 
 ```bash

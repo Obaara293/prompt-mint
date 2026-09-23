@@ -30,6 +30,7 @@
     "lint": "eslint .",
     "format": "prettier . --write",
     "prepare": "husky",
+    "bootstrap": "node scripts/bootstrap.mjs",
     "check:setup": "node scripts/check-local-setup.mjs",
     "deploy:manifest": "node scripts/deploy-manifest.mjs",
     "check:runbook": "node scripts/runbook-check.mjs",
