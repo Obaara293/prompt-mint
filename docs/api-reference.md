@@ -42,6 +42,8 @@ Express JSON bodies are limited to `300kb`; serverless bodies are limited to `10
 
 ## Error codes
 
+Full per-code table — including retry guidance, the Express `AppError` codes, appeal and API-key errors, and the exact envelope shapes — is in the [SDK error-code reference card](./sdk-error-codes.md). That card is verified against `src/lib/api/errorCodes.ts` by `src/test/docs/sdkErrorCodes.test.ts`.
+
 | HTTP | Code/condition | Meaning |
 |---:|---|---|
 | 400 | `MISSING_FIELDS`, `INVALID_INPUT`, `UNSUPPORTED_VERSION` | Invalid shape, missing data, or unsupported API version |

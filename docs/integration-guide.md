@@ -141,14 +141,79 @@ Full OpenAPI spec: [docs/api-reference.md](./api-reference.md)
 
 ---
 
+## Server-Side SDKs
+
+Backend integrations (API-key auth, idempotent writes, webhook verification) use the server SDKs instead of the browser SDK above:
+
+| Language | Package | Location |
+|---|---|---|
+| TypeScript | `@prompthash/server-sdk` | [`packages/server-sdk`](../packages/server-sdk) |
+| Python | `prompthash-server-sdk` | [`packages/server-sdk-python`](../packages/server-sdk-python) |
+| Go | `github.com/PromptMintLabs/prompt-mint/packages/server-sdk-go` | [`packages/server-sdk-go`](../packages/server-sdk-go) |
+
+All three share the same surface: `Authorization: Bearer pm_<prefix>_<secret>` (or `X-Api-Key`), `Accept-Version` negotiation, `Idempotency-Key` on state-changing calls, typed errors with a `code`, bounded retry with backoff on `429`/`5xx`, and constant-time HMAC-SHA256 verification of the `X-PromptHash-Signature` webhook header.
+
+```typescript
+import { PromptHashServerClient } from "@prompthash/server-sdk";
+
+const client = new PromptHashServerClient({
+  baseUrl: "https://api.promptmint.io",
+  apiKey: process.env.PROMPTMINT_API_KEY,
+});
+
+const page = await client.listPrompts({ page: 1, limit: 20 });
+const registration = await client.registerWebhook({
+  walletAddress: "GB7...XYZ",
+  url: "https://example.com/hooks/prompthash",
+  events: ["PromptPurchased"],
+});
+// registration.secret is shown once — store it for verification.
+```
+
+```python
+from prompthash_server_sdk import PromptHashClient
+
+client = PromptHashClient(base_url="https://api.promptmint.io", api_key="pm_...")
+page = client.list_prompts(page=1, limit=20)
+registration = client.register_webhook(
+    wallet_address="GB7...XYZ",
+    url="https://example.com/hooks/prompthash",
+    events=["PromptPurchased"],
+)
+```
+
+```go
+client, err := prompthash.NewClient(prompthash.Config{
+    BaseURL: "https://api.promptmint.io",
+    APIKey:  os.Getenv("PROMPTMINT_API_KEY"),
+})
+if err != nil {
+    log.Fatal(err)
+}
+
+page, err := client.ListPrompts(ctx, prompthash.ListPromptsParams{Page: 1, Limit: 20})
+registration, err := client.RegisterWebhook(ctx, prompthash.RegisterWebhookParams{
+    WalletAddress: "GB7...XYZ",
+    URL:           "https://example.com/hooks/prompthash",
+    Events:        []string{"PromptPurchased"},
+})
+```
+
+---
+
 ## Error Handling
 
-All SDK methods throw typed errors. The REST API returns `{ error: string }` with appropriate HTTP status codes:
+All SDK methods throw typed errors carrying the machine-readable `code` the server returned. The REST API returns `{ error: string }` (plus `code` when available) with the appropriate HTTP status:
 
-- `400` — Missing or invalid parameters
-- `403` — Not authorised (e.g. non-buyer attempting to vote)
-- `404` — Resource not found
-- `409` — Conflict (e.g. duplicate vote)
+- `400` — Missing or invalid parameters (`MISSING_FIELDS`, `INVALID_INPUT`, `UNSUPPORTED_VERSION`)
+- `401` — Authentication failed (`INVALID_SIGNATURE`, invalid API key)
+- `403` — Not authorised (e.g. non-buyer attempting to vote, `ACCESS_NOT_PURCHASED`)
+- `404` — Resource not found (`NOT_FOUND`)
+- `409` — Conflict (e.g. duplicate vote, idempotency replay)
+- `429` — Rate limited (`RATE_LIMIT_IP`, `RATE_LIMIT_WALLET`); honour `reset`
+- `5xx` — Transient or configuration failure; retry with backoff unless the code is `INTEGRITY_FAILURE`
+
+See the [SDK error-code reference card](./sdk-error-codes.md) for the complete table, retry policy, and envelope shapes.
 
 ---
 
