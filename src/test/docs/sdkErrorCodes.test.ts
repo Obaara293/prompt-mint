@@ -9,7 +9,7 @@ import { CONTRACT_ERROR_CODES } from "@/lib/stellar/promptHashClient";
  * API actually ships, so a new code cannot be added without a row on the card.
  */
 
-const ROOT = path.resolve(__dirname, "../..");
+const ROOT = path.resolve(__dirname, "../../..");
 const CARD = path.join(ROOT, "docs/sdk-error-codes.md");
 const card = readFileSync(CARD, "utf8");
 
