@@ -39,6 +39,7 @@
     "load:test": "k6 run load-tests/prompt-mint.js",
     "load:compare": "node scripts/load/compare-results.mjs",
     "ops:rollback": "npx tsx scripts/ci-rollback.ts",
+    "inspect:contract": "npx tsx scripts/inspect-contract.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
