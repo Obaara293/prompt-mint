@@ -222,3 +222,8 @@ Analytics accepts only known taxonomy events, rejects raw wallet addresses,
 and has a 20kb body limit. Image validation accepts HTTP(S) URLs only and
 allows JPEG, PNG, WebP, and GIF files up to 5MB. Moderator actions accept 1-50
 actions and may return `207` when some actions fail.
+
+For external developers integrating against these endpoints, see the
+[Public API Survival Guide](./public-api-survival-guide.md) for rate-limit
+handling, error recovery patterns, unlock flow gotchas, and the testnet
+checklist.
