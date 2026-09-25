@@ -294,9 +294,34 @@ if errors.As(err, &apiErr) && apiErr.Code == prompthash.CodeRateLimitIP {
 }
 ```
 
+### Rust — `prompthash-server-sdk`
+
+```rust
+use prompthash_server_sdk::{Client, ClientConfig, ERROR_CODES};
+
+let client = Client::new(ClientConfig {
+    base_url: "https://api.promptmint.io".to_string(),
+    api_key: Some(std::env::var("PROMPTMINT_API_KEY").unwrap_or_default()),
+    ..Default::default()
+})?;
+
+let page = client.list_prompts(Default::default())?;
+if let Err(e) = client.list_prompts(Default::default()) {
+    if let Some(api) = e.as_api_error() {
+        if api.code.as_deref() == Some(ERROR_CODES::RATE_LIMIT_IP.as_str()) {
+            if let Some(wait) = api.retry_after(std::time::SystemTime::now()) {
+                std::thread::sleep(wait);
+            }
+        } else if !api.retryable() {
+            return Err(e);
+        }
+    }
+}
+```
+
 ### Verifying webhooks
 
-All three SDKs expose an HMAC-SHA256 verifier for the `X-PromptHash-Signature` header (`sha256=<hex>` over the raw body). Always compare in constant time and reject deliveries older than your replay window — see [docs/payload-versioning.md](./payload-versioning.md).
+All four SDKs expose an HMAC-SHA256 verifier for the `X-PromptHash-Signature` header (`sha256=<hex>` over the raw body). Always compare in constant time and reject deliveries older than your replay window — see [docs/payload-versioning.md](./payload-versioning.md).
 
 ---
 

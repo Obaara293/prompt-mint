@@ -74,6 +74,7 @@ packages/*
 !packages/server-sdk/
 !packages/server-sdk-python/
 !packages/server-sdk-go/
+!packages/server-sdk-rust/
 .omx/
 
 # Load-test secrets and generated results
