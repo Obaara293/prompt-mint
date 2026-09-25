@@ -139,6 +139,55 @@ console.log(top); // [{ promptId, upvotes }, ...]
 
 Full OpenAPI spec: [docs/api-reference.md](./api-reference.md)
 
+For concise gotcha-focused guidance on rate limits, error recovery, the unlock
+flow, idempotency, and webhook verification, see the
+[Public API Survival Guide](./public-api-survival-guide.md).
+
+---
+
+## Testing your integration with mock responses
+
+`@prompthash/sdk` ships a `Mocks` namespace with pre-built fixture factories
+for every public API response shape. Use them to unit-test your integration
+code without a live server or real network calls.
+
+```bash
+npm install @prompthash/sdk
+```
+
+```typescript
+import { Mocks } from "@prompthash/sdk";
+
+// Build individual fixtures
+const p = Mocks.prompt({ id: "7", priceXlm: 5 });
+const challenge = Mocks.challengeResponse();
+const unlock = Mocks.unlockResponse();
+const err = Mocks.apiError("RATE_LIMIT_IP", { reset: Date.now() + 60_000 });
+const headers = Mocks.rateLimitHeaders(0); // remaining = 0
+
+// Build a list response
+const page = Mocks.listPromptsResponse({ prompts: [{ id: "1" }, { id: "2" }] });
+
+// Build webhook payloads for handler testing
+const purchased = Mocks.promptPurchasedWebhook();
+const created = Mocks.promptCreatedWebhook({ deliveryId: "d-test-1" });
+```
+
+All factories accept a partial override object — supply only the fields your
+test cares about and the rest are filled with safe, deterministic defaults.
+The `integrityVerified` flag on `unlockResponse` and `unlockIntegrityFailure`
+lets you test the path where content delivery must be blocked:
+
+```typescript
+// Test the integrity-failure path
+const badUnlock = Mocks.unlockIntegrityFailure();
+expect(badUnlock.integrityVerified).toBe(false);
+// Your handler must NOT expose badUnlock.plaintext to the user
+```
+
+See the [Mock Responses Library reference](./mock-responses-library.md) for
+the complete factory list and the `MockErrorCode` table.
+
 ---
 
 ## Server-Side SDKs
