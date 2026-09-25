@@ -150,8 +150,9 @@ Backend integrations (API-key auth, idempotent writes, webhook verification) use
 | TypeScript | `@prompthash/server-sdk` | [`packages/server-sdk`](../packages/server-sdk) |
 | Python | `prompthash-server-sdk` | [`packages/server-sdk-python`](../packages/server-sdk-python) |
 | Go | `github.com/PromptMintLabs/prompt-mint/packages/server-sdk-go` | [`packages/server-sdk-go`](../packages/server-sdk-go) |
+| Rust | `prompthash-server-sdk` | [`packages/server-sdk-rust`](../packages/server-sdk-rust) |
 
-All three share the same surface: `Authorization: Bearer pm_<prefix>_<secret>` (or `X-Api-Key`), `Accept-Version` negotiation, `Idempotency-Key` on state-changing calls, typed errors with a `code`, bounded retry with backoff on `429`/`5xx`, and constant-time HMAC-SHA256 verification of the `X-PromptHash-Signature` webhook header.
+All four share the same surface: `Authorization: Bearer pm_<prefix>_<secret>` (or `X-Api-Key`), `Accept-Version` negotiation, `Idempotency-Key` on state-changing calls, typed errors with a `code`, bounded retry with backoff on `429`/`5xx`, and constant-time HMAC-SHA256 verification of the `X-PromptHash-Signature` webhook header.
 
 ```typescript
 import { PromptHashServerClient } from "@prompthash/server-sdk";
@@ -197,6 +198,24 @@ registration, err := client.RegisterWebhook(ctx, prompthash.RegisterWebhookParam
     URL:           "https://example.com/hooks/prompthash",
     Events:        []string{"PromptPurchased"},
 })
+```
+
+```rust
+use prompthash_server_sdk::{Client, ClientConfig, RegisterWebhookParams};
+
+let client = Client::new(ClientConfig {
+    base_url: "https://api.promptmint.io".to_string(),
+    api_key: Some(std::env::var("PROMPTMINT_API_KEY").unwrap_or_default()),
+    ..Default::default()
+})?;
+
+let page = client.list_prompts(Default::default())?;
+let registration = client.register_webhook(RegisterWebhookParams {
+    wallet_address: "GB7...XYZ".to_string(),
+    url: "https://example.com/hooks/prompthash".to_string(),
+    events: Some(vec!["PromptPurchased".to_string()]),
+})?;
+// registration.secret is shown once — store it for verification.
 ```
 
 ---

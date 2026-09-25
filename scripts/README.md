@@ -36,7 +36,14 @@ Upgrades an existing contract instance with a new Wasm version.
 
 # Upgrade on local
 ./scripts/upgrade.sh local
+
+# Simulate without touching the chain (no install, no invoke)
+./scripts/upgrade.sh --dry-run
+./scripts/upgrade.sh --dry-run --skip-build
+./scripts/upgrade.sh --dry-run --json
 ```
+
+`--dry-run` delegates to `scripts/upgrade-dry-run.mjs`, which builds (unless `--skip-build`), hashes the Wasm, and probes the live contract via RPC (`get_all_prompts`, `get_schema_version`, `is_paused`) to run the same storage/license integrity gates that `confirm_upgrade` performs on-chain. No transaction is submitted. Exit `0` means the plan looks safe. See `docs/operations/contract-upgrades.md`.
 
 **Note:** Ensure `CONTRACT_ID` is set in your `.env` file or passed as an environment variable.
 
@@ -79,6 +86,34 @@ yarn deploy:manifest verify --manifest deployments/testnet.json
 ```
 
 See [Deploy Manifest](../docs/deploy-manifest.md).
+
+### 7. `chain-status.mjs`
+Probes RPC, Horizon, and the deployed contract to report liveness and configuration health. No transactions are submitted.
+
+```bash
+node scripts/chain-status.mjs --network testnet --contract-id C... --json
+yarn chain:status -- --json
+```
+
+See [Chain Status](../docs/operations/chain-status.md).
+
+### 8. `creator-catalog-export.mjs`
+Exports all prompt listings for a creator wallet to JSON or CSV via the API (preferred) or RPC (read-only).
+
+```bash
+node scripts/creator-catalog-export.mjs --creator G... --api-url https://api.promptmint.io --format json --output catalog.json
+yarn catalog:export -- --creator G... --format csv --output catalog.csv
+```
+
+See [Creator Catalog Export](../docs/creator-catalog-export.md).
+
+### 9. `upgrade-dry-run.mjs`
+Simulates a contract upgrade without writing to the chain. Validates the Wasm hash, checks it differs from the deployed bytecode, and probes the live contract for storage/license integrity.
+
+```bash
+node scripts/upgrade-dry-run.mjs --network testnet --contract-id C... --skip-build --json
+yarn upgrade:dry-run -- --skip-build --json
+```
 
 ## Environment Consistency
 
